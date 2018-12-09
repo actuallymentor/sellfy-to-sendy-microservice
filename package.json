@@ -1,0 +1,28 @@
+{
+  "name": "sellfy-to-sendy-microservice",
+  "version": "0.0.1",
+  "description": "Linking the [ Sellfy ]( https://sellfy.com ) webhook to the [ sendy ]( https://sendy.co/ ) API through an [ AWS lambda ]( https://aws.amazon.com/lambda/ ) function.",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test=true mocha --timeout 9000  -r dotenv/config"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/actuallymentor/sellfy-to-sendy-microservice.git"
+  },
+  "author": "Mentor Palokaj <mentor@palokaj.co> (http://github.com/actuallymentor)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/actuallymentor/sellfy-to-sendy-microservice/issues"
+  },
+  "homepage": "https://github.com/actuallymentor/sellfy-to-sendy-microservice#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "dotenv": "^6.2.0",
+    "mocha": "^5.2.0"
+  }
+}
