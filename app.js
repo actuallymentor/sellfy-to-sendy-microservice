@@ -62,7 +62,7 @@ const validateEnv = env => env.sendyHost != undefined && env.sendyList != undefi
 // Webhook data has everything
 const validateWebhook = data => data.customer && data.customer.email
 
-const hookHandler = webhookData => new Promise( ( resolve ) => {
+const hookHandler = webhookData => new Promise( ( resolve, reject ) => {
 
 	// Reject if webhook sends bad data
 	if( !validateWebhook( webhookData ) ) return reject( `Webhook data bad: ${ JSON.stringify( webhookData ) }` )
@@ -74,17 +74,11 @@ const hookHandler = webhookData => new Promise( ( resolve ) => {
 	if( !isMatchedProduct( webhookData ) ) return resolve( 'No matched product, exiting' )
 
 	// Subscribe
-	return subscribe( webhookData.customer.data, process.env.sendyList, webhookData.customer.country ).then( resolve )
+	return subscribe( webhookData.customer.email, process.env.sendyList, webhookData.customer.country ).then( resolve )
 
 } )
 
-const lambda = ( webhookData, context, callback ) => {
-  
-	return hookHandler( webhookData )
-	.then( result => callback( null, `Success: ${ JSON.stringify( result ) }` ) )
-	.catch( err => callback( err, `Error: ${ JSON.stringify( err )}` ) )
-
-}
+const lambda = webhookData => hookHandler( webhookData )
 
 // Export functions if in test env
 if( process.env.test ) module.exports = {
@@ -96,4 +90,4 @@ if( process.env.test ) module.exports = {
 }
 
 // If not testing, export handler only
-if( !process.env.test == true ) module.handler = lambda
+if( !process.env.test == true ) exports.handler = lambda
