@@ -3,6 +3,8 @@ const querystring = require( 'querystring' )
 
 const post = ( url, data ) => new Promise( ( resolve, reject ) => {
 
+	console.log( `Posting to ${ process.env.sendyHost } ${ url } with ${data}` )
+
 	// Set up request parameters
 	const options = {
 	  hostname: `${ process.env.sendyHost }`,
@@ -96,8 +98,8 @@ const hookHandler = webhookData => new Promise( ( resolve, reject ) => {
 	if( !isMatchedProduct( webhookData ) ) return resolve( 'No matched product, exiting' )
 
 	// (Un)-Subscribe
-	return subscribe( webhookData.customer.email, process.env.subscribeList, webhookData.customer.country )
-	.then( f => process.env.unSubscribeList ? unsubscribe( webhookData.customer.email, process.env.unSubscribeList ) : true )
+	return unsubscribe( webhookData.customer.email, process.env.unSubscribeList )
+	.then( f => subscribe( webhookData.customer.email, process.env.subscribeList, webhookData.customer.country ) )
 	.then( resolve )
 
 } )
