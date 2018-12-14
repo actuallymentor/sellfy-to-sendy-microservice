@@ -3,8 +3,6 @@ const querystring = require( 'querystring' )
 
 const post = ( url, data ) => new Promise( ( resolve, reject ) => {
 
-	console.log( `Posting to ${ process.env.sendyHost } ${ url } with ${data}` )
-
 	// Set up request parameters
 	const options = {
 	  hostname: `${ process.env.sendyHost }`,
