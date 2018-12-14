@@ -1,19 +1,13 @@
 const https = require( 'https' )
 const querystring = require( 'querystring' )
 
-const subscribe = ( email, list, country ) => new Promise( ( resolve, reject ) => {
-
-	// Reject without proper data
-	if( !email || !list ) return reject(  )
-
-	// Data to send
-	const data = querystring.stringify( { email: email, list: list, country: country } )
+const post = ( url, data ) => new Promise( ( resolve, reject ) => {
 
 	// Set up request parameters
 	const options = {
 	  hostname: `${ process.env.sendyHost }`,
 	  port: 443,
-	  path: '/subscribe',
+	  path: url,
 	  method: 'POST',
 	  headers: {
 	  	'Content-Type': 'application/x-www-form-urlencoded',
@@ -34,6 +28,34 @@ const subscribe = ( email, list, country ) => new Promise( ( resolve, reject ) =
 	request.end( resolve )
 
 } )
+
+const subscribe = ( email, list, country ) => new Promise( ( resolve, reject ) => {
+
+	// Reject without proper data
+	if( !email || !list ) return reject(  )
+
+	// Data to send
+	const data = querystring.stringify( { email: email, list: list, country: country } )
+
+	// Do the subscribe
+	post( '/subscribe', data ).then( resolve ).catch( reject )
+
+} )
+
+const unsubscribe = ( email, list ) => new Promise( ( resolve, reject ) => {
+
+	// Reject without proper data
+	if( !email || !list ) return reject(  )
+
+	// Data to send
+	const data = querystring.stringify( { email: email, list: list } )
+
+	// Do the subscribe
+	post( '/unsubscribe', data ).then( resolve ).catch( reject )
+
+} )
+
+
 
 const isMatchedProduct = sellfyData => {
 
@@ -57,7 +79,7 @@ const isMatchedProduct = sellfyData => {
 }
 
 // Env has all required variables
-const validateEnv = env => env.sendyHost != undefined && env.sendyList != undefined && env.sellfyProducts != undefined
+const validateEnv = env => env.sendyHost != undefined && env.subscribeList != undefined && env.sellfyProducts != undefined
 
 // Webhook data has everything
 const validateWebhook = data => data.customer && data.customer.email
@@ -73,8 +95,10 @@ const hookHandler = webhookData => new Promise( ( resolve, reject ) => {
 	// Check for product match
 	if( !isMatchedProduct( webhookData ) ) return resolve( 'No matched product, exiting' )
 
-	// Subscribe
-	return subscribe( webhookData.customer.email, process.env.sendyList, webhookData.customer.country ).then( resolve )
+	// (Un)-Subscribe
+	return subscribe( webhookData.customer.email, process.env.subscribeList, webhookData.customer.country )
+	.then( f => process.env.unSubscribeList ? unsubscribe( webhookData.customer.email, process.env.unSubscribeList ) : true )
+	.then( resolve )
 
 } )
 
@@ -83,6 +107,7 @@ const lambda = webhookData => hookHandler( webhookData )
 // Export functions if in test env
 if( process.env.test ) module.exports = {
 	subscribe: subscribe,
+	unsubscribe: unsubscribe,
 	isMatchedProduct: isMatchedProduct,
 	validateEnv: validateEnv,
 	validateWebhook: validateWebhook,

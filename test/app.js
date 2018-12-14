@@ -11,7 +11,7 @@ describe( 'Environment validation', f => {
 
 	it( 'Rejects if host is missing', function() {
 		return Promise.resolve( {
-			sendyList: 'list',
+			subscribeList: 'list',
 			sellfyProducts: 'products'
 		} )
 		.then( app.validateEnv )
@@ -34,7 +34,7 @@ describe( 'Environment validation', f => {
 	it( 'Rejects if products is missing', function() {
 		return Promise.resolve( {
 			sendyHost: 'host',
-			sendyList: 'list',
+			subscribeList: 'list',
 		} )
 		.then( app.validateEnv )
 		.then( result => {
@@ -42,10 +42,10 @@ describe( 'Environment validation', f => {
 		} )
 	} )
 
-	it( 'Resolves if notjing is missing', function() {
+	it( 'Resolves if nothing is missing', function() {
 		return Promise.resolve( {
 			sendyHost: 'host',
-			sendyList: 'list',
+			subscribeList: 'list',
 			sellfyProducts: 'products'
 		} )
 		.then( app.validateEnv )
@@ -120,7 +120,7 @@ describe( 'Subscription', f => {
 
 	it( 'Fails without an email', function() {
 
-		return expect( app.subscribe( process.env.sendyList ) ).to.be.rejected
+		return expect( app.subscribe( process.env.subscribeList ) ).to.be.rejected
 
 	} )
 
@@ -132,7 +132,28 @@ describe( 'Subscription', f => {
 
 	it( 'Subscribed a user', function() {
 		// NOTE: This test only checks for status code 200, check your sendy interface for the email to be sure.
-		return app.subscribe( 'demo@user.com', process.env.sendyList )
+		return app.subscribe( 'demo@user.com', process.env.subscribeList )
+	} )
+
+} )
+
+describe( 'Un-Subscription', f => {
+
+	it( 'Fails without an email', function() {
+
+		return expect( app.unsubscribe( process.env.subscribeList ) ).to.be.rejected
+
+	} )
+
+	it( 'Fails without a list', function() {
+
+		return expect( app.unsubscribe( 'demo@user.com' ) ).to.be.rejected
+
+	} )
+
+	it( 'Subscribed a user', function() {
+		// NOTE: This test only checks for status code 200, check your sendy interface for the email to be sure.
+		return app.unsubscribe( 'demo@user.com', process.env.subscribeList )
 	} )
 
 } )

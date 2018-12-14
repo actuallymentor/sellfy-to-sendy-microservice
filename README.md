@@ -51,6 +51,7 @@ Environment variables:
 
 ```shell
 sendyHost='sendy.domain.com' # Sendy domain
-sendyList='kdjh7G34ghj' # list id of sendy list
+subscribeList='kdjh7G34ghj' # list id of sendy list to be subscribed to
+subscribeList='kdjh7G34ghj' # list id of sendy list o be unsubscribed from ( optional )
 sellfyProducts='uy68,987Jd' # Comma separated list of product keys
 ```
