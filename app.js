@@ -55,28 +55,8 @@ const unsubscribe = ( email, list ) => new Promise( ( resolve, reject ) => {
 
 } )
 
-
-
-const isMatchedProduct = sellfyData => {
-
-	// Make match list
-	const matchWith = process.env.sellfyProducts.split( ',' )
-
-	// For every sellfy product
-	for (let i = sellfyData.products.length - 1; i >= 0; i--) {
-		
-		// For every prudyct we should match
-		for (let j = matchWith.length - 1; j >= 0; j--) {
-			// Return true if match
-			if( sellfyData.products[i].key == matchWith[j] ) return true
-		}
-
-	}
-
-	// Return false if no matches
-	return false
-
-}
+// Check if project matches
+const isMatchedProduct = sellfyData => sellfyData.products.some( product => process.env.sellfyProducts.indexOf( product.key ) != -1 )
 
 // Env has all required variables
 const validateEnv = env => env.sendyHost != undefined && env.subscribeList != undefined && env.sellfyProducts != undefined
