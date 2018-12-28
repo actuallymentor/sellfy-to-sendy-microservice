@@ -51,7 +51,5 @@ Environment variables:
 
 ```shell
 sendyHost='sendy.domain.com' # Sendy domain
-subscribeList='kdjh7G34ghj' # list id of sendy list to be subscribed to
-subscribeList='kdjh7G34ghj' # list id of sendy list o be unsubscribed from (easy to comment out in the app.js file if you want)
-sellfyProducts='uy68,987Jd' # Comma separated list of product keys
+instructions='[ { "sellfyProducts": "1,2,3", "subscribeList": "LIST", "unSubscribeList": "LIST" }, { "sellfyProducts": "1,2,3", "subscribeList": "LIST", "unSubscribeList": "LIST" } ]' # A json array WITHOUT NEWLINES where every object lists what products to match and what lists to ( un )subscribe to
 ```

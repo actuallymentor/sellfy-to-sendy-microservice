@@ -31,6 +31,8 @@ const post = ( url, data ) => new Promise( ( resolve, reject ) => {
 
 const subscribe = ( email, list, country ) => new Promise( ( resolve, reject ) => {
 
+	if( process.env.debug ) console.log( 'Sub with ', email, list )
+
 	// Reject without proper data
 	if( !email || !list ) return reject(  )
 
@@ -44,6 +46,8 @@ const subscribe = ( email, list, country ) => new Promise( ( resolve, reject ) =
 
 const unsubscribe = ( email, list ) => new Promise( ( resolve, reject ) => {
 
+	if( process.env.debug ) console.log( 'Unsub with ', email, list )
+
 	// Reject without proper data
 	if( !email || !list ) return reject(  )
 
@@ -55,14 +59,16 @@ const unsubscribe = ( email, list ) => new Promise( ( resolve, reject ) => {
 
 } )
 
-// Check if project matches
-const isMatchedProduct = sellfyData => sellfyData.products.some( product => process.env.sellfyProducts.indexOf( product.key ) != -1 )
+// Check if the webhook data matches the current instruction set
+const isMatchedProduct = ( sellfyData, instruction ) => sellfyData.products.some( product => instruction.sellfyProducts.includes( product.key ) )
 
 // Env has all required variables
-const validateEnv = env => env.sendyHost != undefined && env.subscribeList != undefined && env.sellfyProducts != undefined
+const validateEnv = env => env.sendyHost != undefined
+	&& env.instructions != undefined
+	&& JSON.parse( env.instructions ).every( item => item.sellfyProducts && item.subscribeList && true )
 
 // Webhook data has everything
-const validateWebhook = data => data.customer && data.customer.email
+const validateWebhook = data => data.customer && data.customer.email && true
 
 const hookHandler = webhookData => new Promise( ( resolve, reject ) => {
 
@@ -72,12 +78,14 @@ const hookHandler = webhookData => new Promise( ( resolve, reject ) => {
 	// Reject if environment validation fails
 	if( !validateEnv( process.env ) ) return reject( `Environment variables incomplete: ${ JSON.stringify( process.env ) }` )
 
-	// Check for product match
-	if( !isMatchedProduct( webhookData ) ) return resolve( 'No matched product, exiting' )
-
 	// (Un)-Subscribe
-	return unsubscribe( webhookData.customer.email, process.env.unSubscribeList )
-	.then( f => subscribe( webhookData.customer.email, process.env.subscribeList, webhookData.customer.country ) )
+	const instructions = JSON.parse( process.env.instructions )
+	const todos = instructions.filter( instruction => isMatchedProduct( webhookData, instruction ) )
+	if( process.env.debug ) console.log( 'Webhook: ', webhookData, 'Instructions: ', instructions, 'Todos: ', todos )
+	return Promise.all( todos.map( 
+		todo => unsubscribe( webhookData.customer.email, todo.unSubscribeList )
+		.then( f => subscribe( webhookData.customer.email, todo.subscribeList, webhookData.customer.country ) )
+	) )
 	.then( resolve )
 
 } )
