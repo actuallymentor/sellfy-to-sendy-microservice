@@ -2,7 +2,7 @@ const chai = require( 'chai' )
 const chaiAsPromised = require( 'chai-as-promised' )
 const expect = chai.expect
 const env = {
-	host: process.env.sendyHost,
+	host: process.env.sendyHosts,
 	instructions: JSON.parse( process.env.instructions )
 }
 
@@ -47,7 +47,7 @@ describe( 'Environment validation', f => {
 
 	it( 'Resolves if nothing is missing', function() {
 		return Promise.resolve( {
-			sendyHost: 'host',
+			sendyHosts: '[ "host" ]',
 			instructions: '[ { "sellfyProducts": "KhO3,HZnA,dmnVQFUm", "subscribeList": "0m3te5VP4892VWjVAYhGtLiA", "unSubscribeList": "pgG892go9zzdaeziWVTDGMGw" } ]'
 		} )
 		.then( app.validateEnv )

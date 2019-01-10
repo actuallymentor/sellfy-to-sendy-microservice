@@ -1,11 +1,11 @@
 const https = require( 'https' )
 const querystring = require( 'querystring' )
 
-const post = ( url, data ) => new Promise( ( resolve, reject ) => {
+const poster = ( host, url, data ) => new Promise( ( resolve, reject ) => {
 
 	// Set up request parameters
 	const options = {
-	  hostname: `${ process.env.sendyHost }`,
+	  hostname: host,
 	  port: 443,
 	  path: url,
 	  method: 'POST',
@@ -26,6 +26,16 @@ const post = ( url, data ) => new Promise( ( resolve, reject ) => {
 
 	// End request
 	request.end( resolve )
+
+} )
+
+const post = ( url, data ) => new Promise( ( resolve, reject ) => {
+
+	const hosts = JSON.parse( process.env.sendyHosts )
+
+	Promise.all( hosts.map( host => poster( host, url, data ) ) )
+	.then( resolve )
+	.catch( reject )
 
 } )
 
@@ -63,7 +73,8 @@ const unsubscribe = ( email, list ) => new Promise( ( resolve, reject ) => {
 const isMatchedProduct = ( sellfyData, instruction ) => sellfyData.products.some( product => instruction.sellfyProducts.includes( product.key ) )
 
 // Env has all required variables
-const validateEnv = env => env.sendyHost != undefined
+const validateEnv = env => env.sendyHosts != undefined
+	&& JSON.parse( env.sendyHosts )[0] != undefined
 	&& env.instructions != undefined
 	&& JSON.parse( env.instructions ).every( item => item.sellfyProducts && item.subscribeList && true )
 
