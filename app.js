@@ -29,45 +29,43 @@ const poster = ( host, url, data ) => new Promise( ( resolve, reject ) => {
 
 } )
 
-const post = ( url, data ) => new Promise( ( resolve, reject ) => {
+const post = ( url, data ) => {
 
 	const hosts = JSON.parse( process.env.sendyHosts )
 
-	Promise.all( hosts.map( host => poster( host, url, data ) ) )
-	.then( resolve )
-	.catch( reject )
+	return Promise.all( hosts.map( host => poster( host, url, data ) ) )
 
-} )
+}
 
-const subscribe = ( email, list, country ) => new Promise( ( resolve, reject ) => {
+const subscribe = ( email, list, country ) => {
 
 	if( process.env.debug ) console.log( 'Sub with ', email, list )
 
 	// Reject without proper data
-	if( !email || !list ) return reject(  )
+	if( !email || !list ) return Promise.reject()
 
 	// Data to send
 	const data = querystring.stringify( { email: email, list: list, country: country } )
 
 	// Do the subscribe
-	post( '/subscribe', data ).then( resolve ).catch( reject )
+	return post( '/subscribe', data )
 
-} )
+}
 
-const unsubscribe = ( email, list ) => new Promise( ( resolve, reject ) => {
+const unsubscribe = ( email, list ) => {
 
 	if( process.env.debug ) console.log( 'Unsub with ', email, list )
 
 	// Reject without proper data
-	if( !email || !list ) return reject(  )
+	if( !email || !list ) return Promise.reject()
 
 	// Data to send
 	const data = querystring.stringify( { email: email, list: list } )
 
 	// Do the subscribe
-	post( '/unsubscribe', data ).then( resolve ).catch( reject )
+	return post( '/unsubscribe', data )
 
-} )
+}
 
 // Check if the webhook data matches the current instruction set
 const isMatchedProduct = ( sellfyData, instruction ) => sellfyData.products.some( product => instruction.sellfyProducts.includes( product.key ) )
@@ -81,13 +79,13 @@ const validateEnv = env => env.sendyHosts != undefined
 // Webhook data has everything
 const validateWebhook = data => data.customer && data.customer.email && true
 
-const hookHandler = webhookData => new Promise( ( resolve, reject ) => {
+const hookHandler = webhookData => {
 
 	// Reject if webhook sends bad data
-	if( !validateWebhook( webhookData ) ) return reject( `Webhook data bad: ${ JSON.stringify( webhookData ) }` )
+	if( !validateWebhook( webhookData ) ) return Promise.reject( `Webhook data bad: ${ JSON.stringify( webhookData ) }` )
 
 	// Reject if environment validation fails
-	if( !validateEnv( process.env ) ) return reject( `Environment variables incomplete: ${ JSON.stringify( process.env ) }` )
+	if( !validateEnv( process.env ) ) return Promise.eject( `Environment variables incomplete: ${ JSON.stringify( process.env ) }` )
 
 	// (Un)-Subscribe
 	const instructions = JSON.parse( process.env.instructions )
@@ -97,9 +95,8 @@ const hookHandler = webhookData => new Promise( ( resolve, reject ) => {
 		todo => unsubscribe( webhookData.customer.email, todo.unSubscribeList )
 		.then( f => subscribe( webhookData.customer.email, todo.subscribeList, webhookData.customer.country ) )
 	) )
-	.then( resolve )
 
-} )
+}
 
 const lambda = webhookData => hookHandler( webhookData )
 
