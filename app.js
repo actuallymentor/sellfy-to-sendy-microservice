@@ -16,7 +16,18 @@ const poster = ( host, url, data ) => new Promise( ( resolve, reject ) => {
 	}
 
 	// Make the request, reject if status is not 200
-	const request = https.request( options, response => response.statusCode != 200 && reject(  ) )
+	const request = https.request( options, response => {
+
+		if( process.env.debug ) console.log( options.hostname, options.path, 'status code: ', response.statusCode )
+
+		// If debugging, log the data
+		response.on( 'data', data => {
+			if( process.env.debug ) console.log( 'Request data received: ', String( data ) )
+		} )
+
+		if( response.statusCode != 200 ) return reject( )
+
+	} )
 
 	// On error reject
 	request.on( 'error', reject )
@@ -45,7 +56,7 @@ const subscribe = ( email, list, country ) => {
 	if( !email || !list ) return Promise.reject()
 
 	// Data to send
-	const data = querystring.stringify( { email: email, list: list, country: country } )
+	const data = querystring.stringify( { ...( process.env.apikey && { api_key: process.env.apikey } ), email: email, list: list, country: country, boolean: true } )
 
 	// Do the subscribe
 	return post( '/subscribe', data )
@@ -60,7 +71,7 @@ const unsubscribe = ( email, list ) => {
 	if( !email || !list ) return Promise.reject()
 
 	// Data to send
-	const data = querystring.stringify( { email: email, list: list } )
+	const data = querystring.stringify( { ...( process.env.apikey && { api_key: process.env.apikey } ), email: email, list: list, boolean: true } )
 
 	// Do the subscribe
 	return post( '/unsubscribe', data )

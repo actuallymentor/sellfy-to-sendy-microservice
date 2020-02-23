@@ -52,4 +52,5 @@ Environment variables:
 ```shell
 sendyHosts='["mail.immortalmillionaire.com"]' # Sendy domains array
 instructions='[ { "sellfyProducts": "1,2,3", "subscribeList": "LIST", "unSubscribeList": "LIST" }, { "sellfyProducts": "1,2,3", "subscribeList": "LIST", "unSubscribeList": "LIST" } ]' # A json array WITHOUT NEWLINES where every object lists what products to match and what lists to ( un )subscribe to
+apikey='' #if not specified it will not be included in the request, note that newer versions of sendy require it
 ```
