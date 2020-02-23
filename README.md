@@ -22,8 +22,17 @@ Setup:
 
 - Create lambda function (node 12.x LTS) with a role that gives it lambda access
 - Add trigger: API gateway
-  + Template: http api
-  + Copy API endpoint (looks like https://xxxxx.execute-api.xxxx.amazonaws.com/default/xxxxx)
+  + Template: REST api
+  + Security: open
+  + Click on the API to go to it's settings
+  + Under 'resources' create a 'POST' action
+    * Integration type Lambda
+    * Use roxy integration
+    * Input the lambda function name (check the region)
+    * Delete the 'ANY' method
+    * Under 'actions' select 'deploy API'
+    * Stage 'default' (or new stage if you like)
+  + Copy API endpoint WITH PATH (looks like https://xxxx.execute-api.xxxx.amazonaws.com/default/lambda-function-endpoint-name)
   + Add endpoint as webhook in sellfy (under 'Apps')
 - Copy the `app.js` code to the lambda function code (through web or cli)
 - Set environment variables based on the above
