@@ -25,7 +25,7 @@ Setup:
   + Template: http api
   + Copy API endpoint (looks like https://xxxxx.execute-api.xxxx.amazonaws.com/default/xxxxx)
   + Add endpoint as webhook in sellfy (under 'Apps')
-- Copy the code to the lambda function code (through web or cli)
+- Copy the `app.js` code to the lambda function code (through web or cli)
 - Set environment variables based on the above
 
 ## Testing
